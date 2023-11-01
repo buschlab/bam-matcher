@@ -38,6 +38,8 @@ def handle_args():
                              help="First BAM file")
     parser_grp1.add_argument("--bam2",           "-B2", required=True,
                              help="Second BAM file")
+    parser_grp1.add_argument("--cram",           "-C", required=False, action="store_true",
+                        help="Use CRAM format instead of BAM. Default = False")
 
     # if not specified, will always look into the same location
     parser_grp2 = parser.add_argument_group("CONFIGURATION")
@@ -240,18 +242,20 @@ CHECKING INPUT AND OUTPUT
 
 BAM1 = os.path.abspath(os.path.expanduser(args.bam1))
 BAM2 = os.path.abspath(os.path.expanduser(args.bam2))
-
+FORMAT = "CRAM" if args.cram is True else "BAM"
+sINDEX = "crai" if args.cram is True else "bai"
+sFORMAT = FORMAT.lower()
 # check input bams are readable and indexed
 for bam_file in [BAM1, BAM2]:
-    if check_file_read(bam_file, "BAM", FILE_ERROR) == False: exit(1)
+    if check_file_read(bam_file, FORMAT, FILE_ERROR) == False: exit(1)
 
     # check bam files are indexed:
-    bam_index2 = bam_file.rstrip(".bam") + ".bai"
-    bam_index1 = bam_file + ".bai"
+    bam_index2 = bam_file.rstrip("." + sFORMAT) + "." + sINDEX
+    bam_index1 = bam_file + "." + sINDEX
     if (os.access(bam_index1, os.R_OK) == False and
         os.access(bam_index2, os.R_OK) == False):
-        print ("%s\nInput BAM file (%s) is either missing index or the index \
-file is not readable." % (FILE_ERROR, bam_file))
+        print ("%s\nInput %s file (%s) is either missing index or the index \
+file is not readable." % (FILE_ERROR, FORMAT, bam_file))
         exit(1)
 
 # ----------------------------
@@ -260,8 +264,8 @@ REPORT_PATH = ""
 current_dir = os.path.abspath("./")
 if args.output == None:
     REPORT_PATH = os.path.join(current_dir, "bam_matcher_report")
-    bam1_name = os.path.basename(BAM1).rstrip(".bam").replace(".", "_")
-    bam2_name = os.path.basename(BAM2).rstrip(".bam").replace(".", "_")
+    bam1_name = os.path.basename(BAM1).rstrip("." + sFORMAT).replace(".", "_")
+    bam2_name = os.path.basename(BAM2).rstrip("." + sFORMAT).replace(".", "_")
     REPORT_PATH = REPORT_PATH + ".%s_%s_%s" % (bam1_name, bam2_name, random_str)
 else:
     REPORT_PATH = os.path.abspath(os.path.expanduser(args.output))
