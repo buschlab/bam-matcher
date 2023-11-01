@@ -1445,8 +1445,8 @@ for line in fin:
     bam2_gt[pos_] = geno
 
 for pos_ in pos_list:
-    gt1 = bam1_gt[pos_]
-    gt2 = bam2_gt[pos_]
+    gt1 = bam1_gt[pos_].replace("|", "/")
+    gt2 = bam2_gt[pos_].replace("|", "/")
     # if genotypes are the same
     if same_gt(gt1, gt2):
         ct_common += 1
