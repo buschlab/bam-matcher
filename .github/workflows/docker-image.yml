@@ -16,7 +16,7 @@ jobs:
 
     - name: Cache Reference Genome
       id: cache-reference
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: /home/runner/work/bam-matcher/reference
         key: reference
